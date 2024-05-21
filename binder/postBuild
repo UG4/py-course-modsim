@@ -1,0 +1,53 @@
+#!/bin/bash
+mkdir $HOME/opt
+cd $HOME/opt
+git clone https://github.com/UG4/ughub
+
+export UG4_ROOT=$HOME/opt/ug4
+echo "Found ug4: $UG4_ROOT"
+
+# UG4
+mkdir $UG4_ROOT
+cd $UG4_ROOT
+../ughub/ughub init
+../ughub/ughub install Examples
+../ughub/ughub install Limex
+../ughub/ughub install SuperLU6
+
+# Fetch Pybind
+cd $UG4_ROOT
+../ughub/ughub install PybindForUG4
+../ughub/ughub git submodule init
+../ughub/ughub git submodule update
+
+
+# Change to pybind feature
+cd $UG4_ROOT/ugcore
+git checkout feature-pybind11
+git pull
+
+
+# Change to v6.0.0
+cd $UG4_ROOT/plugins/SuperLU6/external/superlu
+git checkout v6.0.0
+
+# Create directory for Python
+mkdir $UG4_ROOT/bin
+mkdir $UG4_ROOT/bin/plugins
+mkdir $UG4_ROOT/bin/plugins/ug4py
+
+# Remove python3.11 (which deviates from Jupyter version, but would be found by cmake below)
+rm -rf /srv/conda/bin/python3.11
+rm -rf /srv/conda/include/python3.11
+rm -rf /srv/conda/lib/python3.11*
+
+# Build UG4
+cd $UG4_ROOT
+mkdir build
+cd build
+cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release ..
+cmake -DDIM="2;3" -DCPU=1 -DPARALLEL=OFF ..
+cmake -DUSE_PYBIND11=ON -DCMAKE_POLICY_DEFAULT_CMP0057=NEW ..
+cmake -DLimex=ON -DConvectionDiffusion=ON -DSuperLU6=ON ..
+make 
+

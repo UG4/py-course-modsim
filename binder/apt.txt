@@ -1,0 +1,12 @@
+# cmake
+build-essential
+clang
+llvm
+lldb
+gdb
+libopenmpi-dev 
+liblapack-dev
+libblas-dev 
+# Optional:
+libgl1-mesa-glx
+xvfb
