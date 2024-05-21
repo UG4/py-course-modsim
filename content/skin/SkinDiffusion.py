@@ -139,7 +139,7 @@ except Exception as inst:
     hasPyvista = False
 
 if hasPyvista :
-    result = pyvista.read('Solution_SkinDif_Pybind.vtu')
+    result = pyvista.read('vtk/SkinDiffusion_00040.vtu')
     print("Pyvista input: ")
     print(result)
     result.plot(scalars="u", show_edges=True, cmap='coolwarm')
