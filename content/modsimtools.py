@@ -1,4 +1,4 @@
-import ug4py.ugcore as ug4
+import ug4py.pyugcore as ug4
 import ug4py.pylimex as limex
 import ug4py.pyconvectiondiffusion as cd
 # import ug4py.pysuperlu as slu
