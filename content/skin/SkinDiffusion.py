@@ -1,7 +1,7 @@
-import ug4py.ugcore as ug4
+import ug4py.pyugcore as ug4
 import ug4py.pylimex as limex
 import ug4py.pyconvectiondiffusion as cd
-import ug4py.pysuperlu as slu
+# import ug4py.pysuperlu as slu
 
 
 # Setup:
@@ -85,7 +85,7 @@ domainDisc.add(dirichletBND)
 # Create Solver
 # In this case we use an LU (Lower Upper) Solver for an exact solution
 lsolver=ug4.LUCPU1()
-lsolver=slu.SuperLUCPU1()
+# lsolver=slu.SuperLUCPU1()
 
 # Solve the transient problem
 # Use the Approximationspace to
@@ -119,11 +119,11 @@ timeInt.set_time_step(dt)
 # can be visualized in paraview or with a python extension
 # We add a corresponding observer to the time integrator.
 def MyCallback(usol, step, time, dt) :
-    ug4.WriteGridFunctionToVTK(usol, "SkinDiffusion_"+str(int(step)).zfill(5)+".vtu")
+    ug4.WriteGridFunctionToVTK(usol, "vtk/SkinDiffusion_"+str(int(step)).zfill(5)+".vtu")
 pyobserver =ug4.PythonCallbackObserver2dCPU1(MyCallback) 
 timeInt.attach_observer(pyobserver)
 
-# Solving the transient problem
+# Solve the transient problem.
 try:
     timeInt.apply(usol, endTime, usol, startTime)
 except Exception as inst:
@@ -131,12 +131,16 @@ except Exception as inst:
 
 
 
-# Plot the result using pyvista
-import pyvista
+# Plot the result (if Pyvista is present)
+hasPyvista = True
+try:
+    import pyvista
+except Exception as inst:
+    hasPyvista = False
 
-result = pyvista.read('Solution_SkinDif_Pybind.vtu')
-print()
-print("Pyvista input: ")
-print(result)
-result.plot(scalars="u", show_edges=True, cmap='coolwarm')
+if hasPyvista :
+    result = pyvista.read('Solution_SkinDif_Pybind.vtu')
+    print("Pyvista input: ")
+    print(result)
+    result.plot(scalars="u", show_edges=True, cmap='coolwarm')
 #scalars="node_value", categories=True
