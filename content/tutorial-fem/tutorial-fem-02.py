@@ -1,11 +1,11 @@
 import sys
-sys.path.append("/Users/anaegel/Software/ug4-git/apps/modsim-course-python/content/skin")
+sys.path.append("..")
 
 import modsimtools as util
-import ug4py as ug4
-import pylimex as limex
-import pyconvectiondiffusion as cd
-import pysuperlu as slu
+import ug4py.pyugcore as ug4
+import ug4py.pylimex as limex
+import ug4py.pyconvectiondiffusion as cd
+# import pysuperlu as slu
 import math 
 
 class SquareConfig:
@@ -125,7 +125,7 @@ domainDisc.adjust_solution(uh)
 #    print(str(inst))
 
 
-solver = slu.SuperLUCPU1()
+solver = ug4.LUCPU1()
 try:
     solver.init(Ah, uh)
     solver.apply(uh, bh)
@@ -133,4 +133,4 @@ except Exception as inst:
     print(inst)
     
 print("Done!")
-ug4.WriteGridFunctionToVTK(uh, "u_solution")
+ug4.WriteGridFunctionToVTK(uh, "tmp/u_solution")
