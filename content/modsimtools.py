@@ -9,7 +9,7 @@ def CreateDomain(gridName, numRefs, requiredSubsets):
     dom = ug4.Domain2d()
 
     # Loading the given grid into the domain
-    print("Loading Domain {gridName}...")
+    print("Loading Domain '" + gridName +"'...")
     ug4.LoadDomain(dom, gridName)
     print("Domain loaded.")
     
@@ -21,7 +21,7 @@ def CreateDomain(gridName, numRefs, requiredSubsets):
         for i in range(numRefs):
             ug4.TerminateAbortedRun()
             refiner.refine()
-            print("Refining step {i} ...")
+            print("Refining step {" + str(i) +"} ...")
 
         print("Refining done")
 
