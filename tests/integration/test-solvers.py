@@ -47,15 +47,11 @@ def test_dir(directory):
         for filename in os.listdir():
             if not test_file(filename):
                 return False
-		
     except Exception as e:
         print(f"Error while processing files: {e}")
         return False 
     
     return True 
-
-
-
 
 # This is the 'old' main.
 def main():
@@ -69,13 +65,21 @@ def main():
 
 
 class TestAll(unittest.TestCase):
- 
-    def test_solvers(self):
+    def setUp(self):
         os.environ['PYVISTA_OFF_SCREEN'] = "True"
         set_test_dir("content/tutorial-solver")
-        # self.assertEqual(test_dir("content/tutorial-solver"), True, "Must return true")
-        self.assertEqual(test_file("example01-smoothers.py"), True, "Must return true")
-        self.assertEqual(test_file("example03-multigrid.py"), True, "Must return true")
+
+    def tearDown(self):
+        set_test_dir("../..")
+
+    #def test_solvers(self):
+         # self.assertEqual(test_dir("content/tutorial-solver"), True, "Must return true")  
+
+    def test_smoothers(self):
+        self.assertTrue(test_file("example01-smoothers.py"), "Must return true")
+    
+    def test_multigrid(self):
+        self.assertTrue(test_file("example03-multigrid.py"), "Must return true")
         
 if __name__ == "__main__":
     # main()
