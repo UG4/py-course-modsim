@@ -10,8 +10,8 @@ jobs:
     - name : Checkout code
       uses : actions/checkout@v2
       
-    #- name : Install Packages 
-    #  run : pip install unittest
+    - name : Install Packages 
+      run : pip install ug4py-base
       
     - name : Run tests 
       run : python -m unittest  tests/integration/test-solvers.py 
