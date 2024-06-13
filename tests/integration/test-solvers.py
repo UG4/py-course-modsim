@@ -29,16 +29,12 @@ def test_file(filename):
         if (filename.endswith(".py")):
             print(f"Processing file: {filename}")
             process = subprocess.run("ipython "+ filename, shell=True, capture_output=True, text=True)
-            print(process.stdout)
-            if process.returncode != 0:
-               
-                print(process.returncode)
-                return False 
+            print("OUT: " +process.stdout)
+            print("ERR: " + process.stderr)
+            return process.returncode 
         else:
-            print(f"Skipping file: {filename}")
-            return True      
- 
-    return True
+            print(f"Skipping file: {filename}")     
+    return 0
 
 def test_dir(directory):
     # Change to the specified directory
@@ -78,10 +74,10 @@ class TestAll(unittest.TestCase):
          # self.assertEqual(test_dir("content/tutorial-solver"), True, "Must return true")  
 
     def test_smoothers(self):
-        self.assertTrue(test_file("example01-smoothers.py"), "Must return true")
+        self.assertEqual(test_file("example01-smoothers.py"), 0, "Must return true")
     
     def test_multigrid(self):
-        self.assertTrue(test_file("example03-multigrid.py"), "Must return true")
+        self.assertEqual(test_file("example03-multigrid.py"), 0, "Must return true")
         
 if __name__ == "__main__":
     # main()
