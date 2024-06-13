@@ -29,7 +29,9 @@ def test_file(filename):
         if (filename.endswith(".py")):
             print(f"Processing file: {filename}")
             process = subprocess.run("ipython "+ filename, shell=True, capture_output=True, text=True)
+            print(process.stdout)
             if process.returncode != 0:
+               
                 print(process.returncode)
                 return False 
         else:
