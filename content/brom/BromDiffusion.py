@@ -13,7 +13,7 @@
 # 
 # ## Setup
 
-# In[2]:
+# In[ ]:
 
 
 import sys
@@ -26,7 +26,7 @@ import ug4py.pyconvectiondiffusion as cd
 
 # ## Grid and domain
 
-# In[3]:
+# In[ ]:
 
 
 # Setup:
@@ -55,7 +55,7 @@ if numRefs > 0:
 
     print("Refining done")
 
-# checking if geometry has the needed subsets of the probelm
+# checking if geometry has the needed subsets of the problem
 sh = dom.subset_handler()
 for e in requiredSubsets:
     if sh.get_subset_index(e) == -1:
@@ -66,7 +66,7 @@ for e in requiredSubsets:
 
 # ## Approximation space 
 
-# In[4]:
+# In[ ]:
 
 
 # Create approximation space which describes the unknowns in the equation
@@ -114,7 +114,7 @@ domainDisc.add(elemDisc)
 domainDisc.add(dirichletBND)
 
 
-# In[4]:
+# In[ ]:
 
 
 # Technical stuff
@@ -136,7 +136,7 @@ pyFunction.set_input_and_deriv(1,elemDisc.value(), MyFunction_v)
 
 # ## Solve transient problem
 
-# In[5]:
+# In[ ]:
 
 
 # Use the Approximationspace to
@@ -168,7 +168,7 @@ ug4.WriteGridFunctionToVTK(usol, "BromInitial")
 lsolver=ug4.LUCPU1()
 
 
-# In[6]:
+# In[ ]:
 
 
 # Define start time, end time and step size
@@ -201,20 +201,20 @@ except Exception as inst:
 
 # ## Exporting the result 
 
-# In[8]:
+# In[ ]:
 
 
 # Exporting the result to a vtu-file
 # can be visualized in paraview or with a python extension
 ug4.WriteGridFunctionToVTK(usol, "BromFinal")
 
-# Plotting the result using pyvista
-import pyvista
-result = pyvista.read('BromFinal.vtu')
-print()
-print("Pyvista input: ")
-print(result)
-result.plot(scalars="u", show_edges=True, cmap='hot')
+try:
+    # Plotting the result using pyvista
+    import pyvista
+    result = pyvista.read('BromFinal.vtu')
+    result.plot(scalars="u", show_edges=True, cmap='hot')
+except:
+     print("Plotting failed.")
 
 
 # In[ ]:
