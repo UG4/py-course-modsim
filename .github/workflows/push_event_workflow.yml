@@ -23,6 +23,9 @@ jobs:
     - name : Run tests 
       run : |
         python -m unittest  tests/integration/test-solvers.py 
+        ls
+        cd $HOME
+        ls
 
     - name: Push to main
       if: success()
