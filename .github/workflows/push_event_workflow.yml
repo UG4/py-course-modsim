@@ -21,9 +21,10 @@ jobs:
       run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets
       
     - name : Run tests 
-      run : python -m unittest  tests/integration/test-solvers.py 
+      run : |
+        python -m unittest  tests/integration/test-solvers.py 
 
-      - name: Push to main
+    - name: Push to main
       if: success()
       run: |
         git config --global user.name 'github-actions[bot]'
