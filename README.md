@@ -1,8 +1,7 @@
-# modsim-course-python
+# py-course-modsim
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/UG4/py-course-modsim/HEAD)
 
-
-This course is a Python-based course for an introduction of UG4. It is a port of the sibling [Lua course](http://github.com/UG4/modsim-course-lua). Both versions support execution using binder.
+This course is a Python-based course for an introduction of UG4. 
 
 Please start the course [here](index.ipynb).
 
@@ -14,4 +13,13 @@ Please start the course [here](index.ipynb).
 * Installation script in binder/postBuild
 
 ## Installation:
-'''pip install ug4py-base'''
+´´´
+pip install ug4py-base
+´´´
+
+´´´
+git clone https://github.com/UG4/py-course-modsim.git
+´´´
+
+## Note
+It is a port of the sibling [Lua course](http://github.com/UG4/modsim-course-lua). 
