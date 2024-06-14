@@ -23,6 +23,7 @@ jobs:
     - name : Run tests 
       run : |
         python -m unittest  tests/integration/test-solvers.py 
+        # add more tests here, if required.
 
     - name: Push to main
       if: success()
