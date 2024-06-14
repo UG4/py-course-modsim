@@ -1,8 +1,15 @@
 name: Push Event Workflow
 
-on: push 
-  branches:
+on: 
+  push: 
+    # push request on 'develop'
+    branches:
     - develop
+    
+  pull_request:
+    # pull request with target main
+    branches:
+    - main
 
 jobs:
   unit-testing:
