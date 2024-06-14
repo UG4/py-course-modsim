@@ -23,13 +23,11 @@ jobs:
     - name : Run tests 
       run : |
         python -m unittest  tests/integration/test-solvers.py 
-        ls
-        cd $HOME
-        ls
 
     - name: Push to main
       if: success()
       run: |
+        ls
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git checkout main
