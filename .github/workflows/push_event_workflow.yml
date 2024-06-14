@@ -1,13 +1,11 @@
 name: Push Event Workflow
 
-on: 
-  push: 
-    # push request on 'develop'
+on:
+  push:  # push request on 'develop'
     branches:
     - develop
     
-  pull_request:
-    # pull request with target main
+  pull_request: # pull request with target main
     branches:
     - main
 
