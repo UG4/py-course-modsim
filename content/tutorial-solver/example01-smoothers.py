@@ -223,11 +223,18 @@ except ModuleNotFoundError:
     print("pyvista is required for this demo")
     exit(0)
 
-#pyvista.start_xvfb()
-#pyvista.set_jupyter_backend('static')
-pyvista.set_jupyter_backend('trame')
-result = pyvista.read( "Error_gs.vtu")
-result.plot(scalars="u", show_edges=True, cmap='jet')
+try:  
+    # Activate the following lines binder, colab etc.
+    pyvista.start_xvfb()
+    pyvista.set_jupyter_backend('static')
+
+    # Activate locally, if trame exists.
+    # pyvista.set_jupyter_backend('trame')
+    
+    result = pyvista.read( "Error_gs.vtu")
+    result.plot(scalars="u", show_edges=True, cmap='jet')
+except:
+     print("Plotting failed.")
 
 
 # In[ ]:
