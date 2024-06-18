@@ -13,13 +13,24 @@ Please start the course [here](index.ipynb).
 * Installation script in binder/postBuild
 
 ## Installation:
-´´´
-pip install ug4py-base
-´´´
 
-´´´
+1) Install via pip
+```
+pip install ug4py-base
+```
+
+2) Clone repo:
+```
 git clone https://github.com/UG4/py-course-modsim.git
-´´´
+```
+
+3) Run examples, e.g.,:
+```
+cd py-course-modsim/content/tutorial-fem
+python tutorial-fem-01.py
+```
+
+
 
 ## Note
 It is a port of the sibling [Lua course](http://github.com/UG4/modsim-course-lua). 
