@@ -65,7 +65,6 @@ def main():
 class TestAll(unittest.TestCase):
     def setUp(self):
         os.environ['PYVISTA_OFF_SCREEN'] = "True"
-        set_test_dir("content/tutorial-solver")
 
     def tearDown(self):
         set_test_dir("../..")
@@ -74,10 +73,16 @@ class TestAll(unittest.TestCase):
          # self.assertEqual(test_dir("content/tutorial-solver"), True, "Must return true")  
 
     def test_smoothers(self):
+        set_test_dir("content/tutorial-solver")
         self.assertEqual(test_file("example01-smoothers.py"), 0, "Must return true")
     
     def test_multigrid(self):
+        set_test_dir("content/tutorial-solver")
         self.assertEqual(test_file("example03-multigrid.py"), 0, "Must return true")
+    
+    def test_bromide(self):
+        set_test_dir("content/brom")
+        self.assertEqual(test_file("BromDiffusion.py"), 0, "Must return true")
         
 if __name__ == "__main__":
     # main()

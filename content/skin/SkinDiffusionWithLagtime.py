@@ -1,31 +1,38 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# [<img src="../header.svg">](../index.ipynd)
+# [<img src="../../header.svg">](../index.ipynd)
 # 
 # ---
 # 
 # # Drug Transport across a Virtual Skin Membrane:  Extended version
-# [Previous Version](SkinDiffusion.ipybnd)
+# We know the basic steps from the [previous version](SkinDiffusion.ipybnd).
 
 # ## 1. Setup
 # 
 # ### Load existing modules 
 
-# In[1]:
+# In[27]:
 
 
+import ug4py.pyugcore  as ugcore
+import ug4py.pylimex as limex
+import ug4py.pyconvectiondiffusion as cd
+# import pysuperlu as slu
+
+
+# In[28]:
+
+
+# Importing
+import sys
+sys.path.append('..')
 import modsimtools as util
-
-import ug4py as ug4
-import pylimex as limex
-import pyconvectiondiffusion as cd
-import pysuperlu as slu
 
 
 # ### Create Domain
 
-# In[2]:
+# In[29]:
 
 
 requiredSubsets = {"LIP", "COR", "BOTTOM_SC", "TOP_SC"}
@@ -33,7 +40,7 @@ gridName = "skin2d-aniso.ugx"
 numRefs = 2
 
 
-# In[3]:
+# In[30]:
 
 
 dom = util.CreateDomain(gridName, numRefs, requiredSubsets)
@@ -41,17 +48,16 @@ dom = util.CreateDomain(gridName, numRefs, requiredSubsets)
 
 # ### Create Approximation space
 
-# In[4]:
+# In[31]:
 
 
 approxSpaceDesc = dict(fct = "u", type = "Lagrange", order = 1)
 approxSpace = util.CreateApproximationSpace(dom, approxSpaceDesc)
 
 
-# ### Create discretization
-# 
+# ### Create spatial discretization
 
-# In[5]:
+# In[32]:
 
 
 # Define model parameter
@@ -59,7 +65,7 @@ K={ "COR": 1e-3, "LIP": 1.0 }
 D={ "COR":  1.0, "LIP":1.0 }
 
 
-# In[6]:
+# In[33]:
 
 
 # Create element discretizations for lipids and corneocytes.
@@ -68,20 +74,20 @@ elemDisc["COR"] = util.CreateDiffusionElemDisc("u", "COR", K["COR"], K["COR"]*D[
 elemDisc["LIP"] = util.CreateDiffusionElemDisc("u", "LIP", K["LIP"], K["LIP"]*D["LIP"], 0.0)
 
 
-# In[7]:
+# In[34]:
 
 
 # Set Dirichlet boundary conditions.
-dirichletBnd = ug4.DirichletBoundary2dCPU1()
+dirichletBnd = ugcore.DirichletBoundary2dCPU1()
 dirichletBnd.add(1.0, "u", "TOP_SC")
 dirichletBnd.add(0.0, "u", "BOTTOM_SC")
 
 
-# In[8]:
+# In[35]:
 
 
-# Create the global discretization object.
-domainDisc = ug4.DomainDiscretization2dCPU1(approxSpace)
+# Create the global spatial discretization object.
+domainDisc = ugcore.DomainDiscretization2dCPU1(approxSpace)
 domainDisc.add(elemDisc["LIP"])
 domainDisc.add(elemDisc["COR"])
 domainDisc.add(dirichletBnd)
@@ -90,47 +96,47 @@ domainDisc.add(dirichletBnd)
 # ## 2. Steady state problem
 # Flux is computed from steady state. Since configuration of a multigrid solver is somewhat tricky, we use an LU decomposition here:
 
-# In[9]:
+# In[36]:
 
 
-A = ug4.AssembledLinearOperatorCPU1(domainDisc)
-u = ug4.GridFunction2dCPU1(approxSpace)
-b = ug4.GridFunction2dCPU1(approxSpace)
+A = ugcore.AssembledLinearOperatorCPU1(domainDisc)
+u = ugcore.GridFunction2dCPU1(approxSpace)
+b = ugcore.GridFunction2dCPU1(approxSpace)
 
-ug4.Interpolate(0.0, u, "u")
+ugcore.Interpolate(0.0, u, "u")
 
 domainDisc.assemble_linear(A, b)
 domainDisc.adjust_solution(u)
 
-#lsolver = ug4.LUCPU1()
-lsolver =slu.SuperLUCPU1()
+lsolver = ugcore.LUCPU1()
+#lsolver =slu.SuperLUCPU1()
 
 lsolver.init(A, u)
 lsolver.apply(u, b)
 
-ug4.WriteGridFunctionToVTK(u, "SkinSteadyState.vtk")
+ugcore.WriteGridFunctionToVTK(u, "vtk/SkinSteadyState.vtk")
 
 
 # Compute $J_\infty=J(t=\infty)$ for
 # $$ J(t)=\frac{1}{|\Gamma|}\int_\Gamma (-KD \nabla u(t,x)) \cdot \vec n dA$$
 
-# In[10]:
+# In[37]:
 
 
-areaG=ug4.Integral(1.0, u, "BOTTOM_SC")
+areaG=ugcore.Integral(1.0, u, "BOTTOM_SC")
 print("Surface area [um^2]:")
 print(areaG)
 
 surfaceFlux = {}
-surfaceFlux["BOT"] = K["LIP"]*D["LIP"]*ug4.IntegrateNormalGradientOnManifold(u, "u", "BOTTOM_SC", "LIP")
-surfaceFlux["TOP"] = K["LIP"]*D["LIP"]*ug4.IntegrateNormalGradientOnManifold(u, "u", "TOP_SC", "LIP")
+surfaceFlux["BOT"] = K["LIP"]*D["LIP"]*ugcore.IntegrateNormalGradientOnManifold(u, "u", "BOTTOM_SC", "LIP")
+surfaceFlux["TOP"] = K["LIP"]*D["LIP"]*ugcore.IntegrateNormalGradientOnManifold(u, "u", "TOP_SC", "LIP")
 
 print("Surface fluxes [kg/s]:")
 print(surfaceFlux["TOP"])
 print(surfaceFlux["BOT"])
 
 
-# In[11]:
+# In[38]:
 
 
 print("Normalized Fluxes [kg / (mu^2 * s)]:")
@@ -138,7 +144,7 @@ print(surfaceFlux["TOP"]/areaG)
 print(surfaceFlux["BOT"]/areaG)
 
 
-# In[12]:
+# In[39]:
 
 
 Jref = 1.0/17.6
@@ -150,19 +156,47 @@ print(surfaceFlux["BOT"]/areaG/Jref)
 
 # ## 3. Transient problem
 
-# After each time-step, we execute a a callback function `MyPostProcess`. In this function, print the solution and compute
+# ### Define time integrator
+
+# In[40]:
+
+
+# Create time discretization.
+timeDisc=ugcore.ThetaTimeStepCPU1(domainDisc, 1.0) 
+
+
+# In[41]:
+
+
+# Settings for time stepping.
+startTime = 0.0
+endTime = 5000.0
+dt=25.0
+dtMin=2.5
+
+
+# In[42]:
+
+
+# Create time integrator.
+timeInt = limex.ConstStepLinearTimeIntegrator2dCPU1(timeDisc)
+timeInt.set_linear_solver(lsolver)
+timeInt.set_time_step(dt)
+
+
+# ###  Creating observers
+
+# After each successful step, we would like to perform certain operations, e.g. for book-keeping. To that end, we would like to execute the following callback `MyPostProcess`. In this function, print the solution and compute
 # $$
 # m(t_k):= \int_0^{t_k} J(s) \, ds \approx \sum_{i=1}^k(t_{i}- t_{i-1}) \frac{J(t_{i-1}) +J(t_i)}{2} 
 # $$
 # using the trapezoid rule. Moreover, we also compute the lag time $\tau$ from $m(t_k) = J_\infty(t_k - \tau)$.
-# 
 
-# In[13]:
+# In[43]:
 
 
 # auxiliary variables for book-keeping
 import numpy as np
-import os
 
 tPoints = np.array([0.0])
 mPoints = np.array([0.0])
@@ -180,8 +214,8 @@ def MyPostProcess(u, step, time, dt):
     
     # 1) Compute fluxes.
     gradFlux={}
-    gradFlux["BOT"] = ug4.IntegrateNormalGradientOnManifold(u, "u", "BOTTOM_SC", "LIP")
-    gradFlux["TOP"] = ug4.IntegrateNormalGradientOnManifold(u, "u", "TOP_SC", "LIP")
+    gradFlux["BOT"] = ugcore.IntegrateNormalGradientOnManifold(u, "u", "BOTTOM_SC", "LIP")
+    gradFlux["TOP"] = ugcore.IntegrateNormalGradientOnManifold(u, "u", "TOP_SC", "LIP")
   
     jTOP = K["LIP"]*D["LIP"]*gradFlux["TOP"]
     jBOT = K["LIP"]*D["LIP"]*gradFlux["BOT"]
@@ -200,67 +234,38 @@ def MyPostProcess(u, step, time, dt):
     tPoints = np.append(tPoints, time)
     jPoints = np.append(jPoints, jBOT)
     mPoints = np.append(mPoints, mass)
+
+
+# In[44]:
+
+
+# We use this function to define a callback
+pyobserver= ugcore.PythonCallbackObserver2dCPU1(MyPostProcess)
+
+
+# A second observer is used for writing vtk files:
+
+# In[45]:
+
+
+# Create callback observer for file I/O.
+def MyVTKCallback(usol, step, time, dt) :
+    ugcore.WriteGridFunctionToVTK(usol, "vtk/SkinDiffusion_"+str(int(step)).zfill(5)+".vtu")
     
-    os.system('df -k /')
-    return True
-    
+vtkobserver = ugcore.PythonCallbackObserver2dCPU1(MyVTKCallback) 
 
 
-# In[14]:
+# In[46]:
 
 
-pyobserver= ug4.PythonCallbackObserver2dCPU1(MyPostProcess)
+# Alternative:
+# vtk=ug4.VTKOutput2d()
+# vtkobserver=limex.VTKOutputObserver2dCPU1("../../SkinData.vtu", vtk)
 
 
-# Additionally, we define a callback for vtk files.
+# The third  observer (for convenience, non-essential) indicates the progress of time stepping:
 
-# In[15]:
-
-
-# Callback for file I/O.
-vtk=ug4.VTKOutput2d()
-vtkobserver=limex.VTKOutputObserver2dCPU1("vtk/SkinData.vtu", vtk)
-
-
-# ### Define time integrator
-
-# In[16]:
-
-
-# Create time discretization.
-timeDisc=ug4.ThetaTimeStepCPU1(domainDisc, 1.0) 
-
-
-# In[17]:
-
-
-# Settings for time stepping.
-startTime = 0.0
-endTime = 2500.0
-dt=25.0
-dtMin=2.5
-
-ug4.Interpolate(0.0, u, "u")
-
-
-# In[18]:
-
-
-# Create time integrator.
-timeInt = limex.ConstStepLinearTimeIntegrator2dCPU1(timeDisc)
-timeInt.set_linear_solver(lsolver)
-timeInt.set_time_step(dt)
-
-
-# In[19]:
-
-
-# Attach observers.
-timeInt.attach_observer(vtkobserver)
-timeInt.attach_observer(pyobserver)
-
-
-# In[20]:
+# In[47]:
 
 
 # Create progress widget.
@@ -269,18 +274,42 @@ from IPython.display import display
 
 wProgress=widgets.FloatProgress(value=startTime, min=startTime, max=endTime, 
                                 description='Progress:', style={'bar_color': 'blue'})
-display(wProgress)
 
 # Create callback and attach observer.
-def MyProgress(u, step, time, dt):
+def MyProgressCallback(u, step, time, dt):
     wProgress.value=time
     
-timeInt.attach_observer(ug4.PythonCallbackObserver2dCPU1(MyProgress)) 
+progressobserver = ugcore.PythonCallbackObserver2dCPU1(MyProgressCallback)
+
+
+# All observers must be attached to the time integrator:
+
+# In[48]:
+
+
+# Attach observers.
+timeInt.attach_observer(pyobserver)
+timeInt.attach_observer(vtkobserver)
+timeInt.attach_observer(progressobserver) 
 
 
 # ### Solve transient problem
 
-# In[ ]:
+# In[49]:
+
+
+# Set initial values.
+ugcore.Interpolate(0.0, u, "u")
+
+
+# In[50]:
+
+
+# Show progress bar.
+display(wProgress)
+
+
+# In[51]:
 
 
 # Solve problem.
@@ -295,7 +324,7 @@ wProgress.style={'bar_color': 'red'}
 # ## 4. Visualization
 # 
 
-# In[ ]:
+# In[52]:
 
 
 import matplotlib.pyplot as pyplot
