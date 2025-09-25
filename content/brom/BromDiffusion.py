@@ -130,7 +130,7 @@ def MyFunction_v (u,v):
 pyFunction=ug4.PythonUserFunction3d(MyFunction, 2)
 pyFunction.set_input_and_deriv(0,elemDisc.value(), MyFunction_u)
 pyFunction.set_input_and_deriv(1,elemDisc.value(), MyFunction_v)
-# elemDisc.set_reaction(pyFunction)
+elemDisc.set_reaction(pyFunction)
 
 
 
