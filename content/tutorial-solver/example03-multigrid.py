@@ -55,7 +55,7 @@
 # In[23]:
 
 
-get_ipython().run_line_magic('run', 'example01-smoothers.ipynb')
+get_ipython().run_line_magic('run', 'example01-smoothers.py')
 
 
 # In[24]:

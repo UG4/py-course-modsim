@@ -46,8 +46,8 @@ ugcore.OrderLex(approxSpace, "x")
 
 # Import problem
 from config.ConvectionDiffusionProblem import ConvectionDiffusionProblem
-mydesc = {"eps":1, "velx":0.0, "vely": 0.0}
-problem=ConvectionDiffusionProblem(mydesc)
+mydesc = {"cmp": "u", "eps":1, "velx":0.0, "vely": 0.0, "upwind": True}
+problem=ConvectionDiffusionProblem(**mydesc)
 
 
 # In[ ]:
@@ -55,8 +55,8 @@ problem=ConvectionDiffusionProblem(mydesc)
 
 # Select discretization
 domainDisc = ugcore.DomainDiscretization2dCPU1(approxSpace)
-problem.add_element_discretizations(domainDisc, "u")
-problem.add_boundary_conditions(domainDisc, "u")
+problem.add_element_discretizations(domainDisc)
+problem.add_boundary_conditions(domainDisc)
 
 
 # ## Defining iterative methods
@@ -174,8 +174,7 @@ def SolverTest(domainDisc, approxSpace, solver, ioname):
     # SaveVectorForConnectionViewer(u, "VectorU.vec")
     
     # Store history (e.g. for plotting)
-    import numpy as np
-    history = np.zeros(nvec)
+    history = [0] * nvec
     history[0] = convCheck.defect()/convCheck.reduction() # Initial defect.
     for i in range(convCheck.step()):
         history[i] = convCheck.get_defect(i)
@@ -211,7 +210,7 @@ def PlotResults(history, title):
 # In[ ]:
 
 
-PlotResults(history, "Gauss-Seidel")
+# PlotResults(history, "Gauss-Seidel")
 
 
 # In[1]:
@@ -222,6 +221,8 @@ try:
 except ModuleNotFoundError:
     print("pyvista is required for this demo")
     exit(0)
+except:
+     print("pyvista import failed.")
 
 try:  
     # Activate the following lines binder, colab etc.
