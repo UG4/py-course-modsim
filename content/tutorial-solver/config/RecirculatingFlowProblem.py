@@ -1,22 +1,19 @@
 import ug4py.pyugcore as ugcore
 import ug4py.pyconvectiondiffusion as cd
+import time
 
-class ConvectionDiffusionProblem:
+class RecirculatingFlowProblem:
 
     eps = 1.0
-    velx = 0.0
-    vely = 0.0
     upwind = ugcore.NoUpwind2d()
 
     @staticmethod
     def create_elem_disc(fct) : 
         return cd.ConvectionDiffusionFV12d(fct, "Inner")
 
-    def __init__(self, cmp, eps, velx, vely, upwind):
+    def __init__(self, cmp, eps, upwind):
         self.cmp = cmp
         self.eps = eps
-        self.velx = velx
-        self.vely = vely
         if upwind:
             self.upwind = ugcore.FullUpwind2d()
         else:
@@ -27,23 +24,22 @@ class ConvectionDiffusionProblem:
         s = 1.0*pi
         return cos(s*x) + cos(s*y)
     
-    def velocity_field(self, x, y, t):
-        return  self.velx, self.vely
+    def velocity_field(self, x, y, t, si):
+        print(x)
+        print(y)
+        time.sleep(10)
+        urecirc = 4.0*x*(1-x)*(1-2*y) 
+        vrecirc = -4.0*y*(1-y)*(1-2*x)
+        return [urecirc, vrecirc]
 
     # Element discretization
     def add_element_discretizations(self,domainDisc):
-        print(self.eps)
+
         elemDisc = self.create_elem_disc(self.cmp)
         elemDisc.set_diffusion(self.eps)
 
-
-        #pyVelocity = lambda x,y,t : self.velocity_field(x,y,t)
-        #myVelocity2 =  ugcore.PyUserNumberData(pyVelocity)
-        
-        myVelocity =  ugcore.ConstUserVector2d(0.0)
-        myVelocity.set_entry(0, self.velx)
-        myVelocity.set_entry(1, self.vely)
-        myVelocity.print()
+        pyVelocity = lambda x,y,t,si : self.velocity_field(x,y,t,si)
+        myVelocity =  ugcore.PythonUserVector2d(pyVelocity)
         elemDisc.set_velocity(myVelocity)
   
         if (self.upwind): 

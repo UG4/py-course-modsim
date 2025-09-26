@@ -33,4 +33,12 @@ python tutorial-fem-01.py
 
 
 ## Note
-It is a port of the sibling [Lua course](http://github.com/UG4/modsim-course-lua). 
+This is a port of the sibling [Lua course](http://github.com/UG4/modsim-course-lua).
+
+Installation via pip does not support parallelism via MPI. In this case, a manual build is required.
+
+´´´
+cmake -DCMAKE_CXX_COMPILER=/where/is/your/mpicxx -DCMAKE_C_COMPILER=/where/is/your/mpicc -DCMAKE_BUILD_TYPE=Release -DDIM="2;3" -DCPU=1 ..
+cmake -DPARALLEL=ON -DUSE_PYBIND11=ON -DCMAKE_POLICY_DEFAULT_CMP0057=NEW ..
+cmake -DLimex=ON -DConvectionDiffusion=ON -DSuperLU6=ON ..
+´´´
