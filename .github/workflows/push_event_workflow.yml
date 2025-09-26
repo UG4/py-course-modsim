@@ -22,7 +22,7 @@ jobs:
       
     - name : Run tests 
       run : |
-        python -m unittest tests/integration/test_solvers.py 
+        python -m unittest tests/integration/test_solvers 
         ls
         cd $HOME
         ls
