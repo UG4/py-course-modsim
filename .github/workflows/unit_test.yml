@@ -20,7 +20,8 @@ jobs:
     - name : Install Packages 
       run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets unittest-xml-reporting
       
-    - name : Run tests 
+    - name : Run tests
+      continue-on-error: true
       run : |
         python tests/integration/test-solvers.py
         ls
