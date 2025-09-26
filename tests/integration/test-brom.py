@@ -1,5 +1,4 @@
 
-
 from utils import  set_test_dir, test_file, test_dir
 
 import os
@@ -7,22 +6,16 @@ import unittest
 import xmlrunner    
 
 
-class TestAll(unittest.TestCase):
+class Bromide3D(unittest.TestCase):
     def setUp(self):
         os.environ['PYVISTA_OFF_SCREEN'] = "True"
-
 
     def tearDown(self):
         set_test_dir("../..")
 
-    def test_smoothers(self):
-        set_test_dir("content/tutorial-solver")
-        self.assertEqual(test_file("example01-smoothers.py"), 0, "Must return true")
-    
-    def test_multigrid(self):
-        set_test_dir("content/tutorial-solver")
-        self.assertEqual(test_file("example03-multigrid.py"), 0, "Must return true")
-    
+    def test_bromide(self):
+        set_test_dir("content/brom")
+        self.assertEqual(test_file("BromDiffusion.py"), 0, "Must return true")
         
 if __name__ == "__main__":
     # unittest.main()
