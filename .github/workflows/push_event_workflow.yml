@@ -18,7 +18,7 @@ jobs:
       uses : actions/checkout@v4
       
     - name : Install Packages 
-      run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets
+      run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets unittest-xml-reporting
       
     - name : Run tests 
       run : |
