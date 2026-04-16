@@ -9,3 +9,6 @@ dependencies:
   - pandas
   - jupyterlab
   - pip
+  - pip: 
+      - ug4py-base
+      - vtk
