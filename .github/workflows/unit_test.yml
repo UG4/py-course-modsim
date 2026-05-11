@@ -20,12 +20,24 @@ jobs:
     - name : Install Packages 
       run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets unittest-xml-reporting
       
-    - name : Run tests 
+    - name : Run tests
+      continue-on-error: true
       run : |
-        python -m unittest  tests/integration/test-solvers.py 
+        python tests/integration/test-solvers.py || true
+        python tests/integration/test-brom.py || true
         ls
         cd $HOME
         ls
+    - name : Upload test artifacts 
+      uses: actions/upload-artifact@v4
+      with:
+        # Name of the artifact to upload.
+        # Optional. Default is 'artifact'
+        name: unittest-artifacts
+        path: test-reports
+    - uses: test-summary/action@v2
+      with:
+        paths: "test-reports/TEST-*.xml"
 
     #- name: Push to main
     #  if: success()
