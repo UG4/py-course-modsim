@@ -208,15 +208,18 @@ except Exception as inst:
 # Exporting the result to a vtu-file
 # can be visualized in paraview or with a python extension
 ug4.WriteGridFunctionToVTK(usol, "BromFinal")
+sys.exit(0)
 
 try:
-    # Plotting the result using pyvista
     import pyvista
-    result = pyvista.read('BromFinal.vtu')
-    result.plot(scalars="u", show_edges=True, cmap='hot')
-except:
-     print("Plotting with pyvista failed.")
-     sys.exit(0)
+except ImportError:
+    print("PyVista not available, skipping plot.")
+    sys.exit(0)
+
+
+# Plotting the result using pyvista
+result = pyvista.read('BromFinal.vtu')
+result.plot(scalars="u", show_edges=True, cmap='hot')
 
 
 # In[ ]:
