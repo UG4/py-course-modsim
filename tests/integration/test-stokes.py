@@ -30,12 +30,19 @@ class TestStokes(unittest.TestCase):
         from nigon import test_nigon
         
         # Low res
-        errors = test_nigon(numRefs=2, lsolver=ug4.LUCPU1())
+        try:
+            errors = test_nigon(numRefs=2, lsolver=ug4.LUCPU1())
+        except Exception as e:
+            self.fail(f"Unexpected exception: {e}")
+
         norm = math.sqrt(errors[0]*errors[0] + errors[1]*errors[1])
         self.assertLessEqual(norm, 1e-3, "Error bounded.")
 
         # Medium res
-        errors = test_nigon(numRefs=3, lsolver=ug4.LUCPU1())
+        try:
+            errors = test_nigon(numRefs=3, lsolver=ug4.LUCPU1())
+        except Exception as e:
+            self.fail(f"Unexpected exception: {e}")
         norm = math.sqrt(errors[0]*errors[0] + errors[1]*errors[1])
         self.assertLessEqual(norm, 1e-4, "Error bounded.")
     

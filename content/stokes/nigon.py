@@ -62,7 +62,7 @@ def CreateApproxSpace(dom, velCmp, uorder, porder):
      approxSpace.init_top_surface()
 
      print("approximation space:")
-     approxSpace.print_statistic()
+     #approxSpace.print_statistic()
      return approxSpace
 
 
@@ -131,7 +131,7 @@ def CreateDomainDisc(approxSpace, fctCmp, uorder, porder, type):
 def test_nigon(numRefs, lsolver):  
     
     # Create domain.
-    dom = util.CreateDomain("nigon.ugx",numRefs, requiredSubsets=["Inner", "Boundary"])
+    dom = util.CreateDomain("nigon.ugx", numRefs, requiredSubsets=["Inner", "Boundary"])
     approxSpace = CreateApproxSpace(dom, velCmp, uorder, porder)
     domainDisc = CreateDomainDisc(approxSpace, fctCmp, uorder, porder, type)
 
@@ -160,6 +160,5 @@ if __name__ == "__main__":
     test_nigon(numRefs=3, lsolver=ug4.LUCPU1())
     if (slu is not None):   
         test_nigon(numRefs=4, lsolver=slu.SuperLUCPU1())
-
 
 # TODO: Test multilevel solvers...
