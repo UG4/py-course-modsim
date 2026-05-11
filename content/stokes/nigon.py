@@ -62,7 +62,7 @@ def CreateApproxSpace(dom, velCmp, uorder, porder):
      approxSpace.init_top_surface()
 
      print("approximation space:")
-     #approxSpace.print_statistic()
+     approxSpace.print_statistic()
      return approxSpace
 
 
