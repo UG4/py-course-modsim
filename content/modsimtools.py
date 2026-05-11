@@ -35,12 +35,15 @@ def CreateDomain(gridName, numRefs, requiredSubsets):
     return dom
 
 def CreateApproximationSpace(dom, approxSpaceDesc):
+    #print("Approximation space-dom:")
     approxSpace = ug4.ApproximationSpace2d(dom)
+    print("Approximation space:")
     approxSpace.add_fct(approxSpaceDesc["fct"], approxSpaceDesc["type"], approxSpaceDesc["order"])
+    #approxSpace.add_fct("u", "Lagrange", 1)
     approxSpace.init_levels()
     approxSpace.init_top_surface()
     print("Approximation space:")
-    approxSpace.print_statistic()
+    #approxSpace.print_statistic()
     return approxSpace
 
 def CreateDiffusionElemDisc(fname, subdom, mass_scale, diffusion, reaction):
