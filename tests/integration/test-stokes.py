@@ -18,7 +18,7 @@ print(sys.path)
 import ug4py.pyugcore as ug4
 
 
-class TestAll(unittest.TestCase):
+class TestStokes(unittest.TestCase):
     def setUp(self):
         set_test_dir("content/stokes")
        # os.environ['PYVISTA_OFF_SCREEN'] = "True"
