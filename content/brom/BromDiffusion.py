@@ -192,9 +192,10 @@ timeInt.set_time_step(dt)
 try:
     timeInt.apply(usol, endTime, usol, startTime)
 except Exception as inst:
-    print("EXCEPTION:")
+    print("EXCEPTION: Solver failed.")
     # print(type(inst))
     print(inst)
+    sys.exit(1)
     
     
 
@@ -214,7 +215,8 @@ try:
     result = pyvista.read('BromFinal.vtu')
     result.plot(scalars="u", show_edges=True, cmap='hot')
 except:
-     print("Plotting failed.")
+     print("Plotting with pyvista failed.")
+     sys.exit(0)
 
 
 # In[ ]:
