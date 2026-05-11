@@ -18,13 +18,14 @@ jobs:
       uses : actions/checkout@v4
       
     - name : Install Packages 
-      run : pip install ug4py-base matplotlib ipython pyvista nbformat trame ipywidgets unittest-xml-reporting
+      run : pip install ug4py-base ug4py-plugins-navierstokes matplotlib ipython pyvista nbformat trame ipywidgets unittest-xml-reporting
       
     - name : Run tests
       continue-on-error: true
       run : |
         python tests/integration/test-solvers.py || true
         python tests/integration/test-brom.py || true
+        python tests/integration/test-stokes.py || true
         ls
         cd $HOME
         ls

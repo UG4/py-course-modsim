@@ -192,9 +192,10 @@ timeInt.set_time_step(dt)
 try:
     timeInt.apply(usol, endTime, usol, startTime)
 except Exception as inst:
-    print("EXCEPTION:")
+    print("EXCEPTION: Solver failed.")
     # print(type(inst))
     print(inst)
+    sys.exit(1)
     
     
 
@@ -207,14 +208,18 @@ except Exception as inst:
 # Exporting the result to a vtu-file
 # can be visualized in paraview or with a python extension
 ug4.WriteGridFunctionToVTK(usol, "BromFinal")
+sys.exit(0)
 
 try:
-    # Plotting the result using pyvista
     import pyvista
-    result = pyvista.read('BromFinal.vtu')
-    result.plot(scalars="u", show_edges=True, cmap='hot')
-except:
-     print("Plotting failed.")
+except ImportError:
+    print("PyVista not available, skipping plot.")
+    sys.exit(0)
+
+
+# Plotting the result using pyvista
+result = pyvista.read('BromFinal.vtu')
+result.plot(scalars="u", show_edges=True, cmap='hot')
 
 
 # In[ ]:
