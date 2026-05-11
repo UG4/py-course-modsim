@@ -25,6 +25,7 @@ jobs:
       run : |
         python tests/integration/test-solvers.py || true
         python tests/integration/test-brom.py || true
+        python tests/integration/test-stokes.py || true
         ls
         cd $HOME
         ls

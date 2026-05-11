@@ -152,9 +152,9 @@ def test_nigon(numRefs, lsolver):
     print( "Error: ", [errU, errV] )
     return [errU, errV]
             
-#-----------------------------------------
-#-- Execute tests
-#-----------------------------------------
+#-----------------------------------------------------
+#-- Execute tests (if this module is called directly)
+#-----------------------------------------------------
 if __name__ == "__main__":
     test_nigon(numRefs=2, lsolver=ug4.LUCPU1())
     test_nigon(numRefs=3, lsolver=ug4.LUCPU1())
