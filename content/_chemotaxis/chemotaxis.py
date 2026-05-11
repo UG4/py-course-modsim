@@ -121,7 +121,10 @@ elemDisc["v"] = util.CreateDiffusionElemDisc("v", "Inner", 1.0, diffusionTensor[
 elemDisc["w"] = util.CreateDiffusionElemDisc("w", "Inner", 1.0, diffusionTensor["w"], 0.0)
 
 # Adding velocity term to elemDisc["u"]
-x0_vel=ug4.ScaleAddLinkerVector2d(); x0_vel.add(x0, elemDisc["v"].gradient())
+# u*(1-u/beta)*x0
+sat = ug4.ScaleAddLinkerVector2d()
+sat.add(elemDisc["u"].value(), x0)
+x0_vel=ug4.ScaleAddLinkerVector2d(); x0_vel.add(sat, elemDisc["v"].gradient())
 elemDisc["u"].set_upwind(ug4.FullUpwind2d()) #-- NoUpwind() -- FullUpwind()
 
 # -----------------------------------------
@@ -140,6 +143,7 @@ def ReactionV_dV(u, v, w):
 def ReactionV_dW(u, v, w):
     return -1.0 * gamma * (v * v)
 
+# activator
 nonlinearGrowth = {}
 nonlinearGrowth["v"] = ug4.PythonUserFunction2d(ReactionV, 3)
 nonlinearGrowth["v"].set_input_and_deriv(0, elemDisc["u"].value(), ReactionV_dU)
@@ -159,6 +163,7 @@ def ReactionW_dV(u, v, w):
 def ReactionW_dW(u, v, w):
     return 1.0 * gamma * (v * v)
 
+# inhibitor
 nonlinearGrowth["w"] = ug4.PythonUserFunction2d(ReactionW, 3)
 nonlinearGrowth["w"].set_input_and_deriv(0, elemDisc["u"].value(), ReactionW_dU)
 nonlinearGrowth["w"].set_input_and_deriv(1, elemDisc["v"].value(), ReactionW_dV)
