@@ -146,9 +146,27 @@ def test_nigon(numRefs, lsolver):
     lsolver.init(A, u)
     lsolver.apply(u,b)
 
+    
+    if (False):
+        # Print solution as vtk.
+        ug4.WriteGridFunctionToVTK(u, "nigon.vtu")
+
+    if (False):
+        # Print solution as vtk
+        view=ug4.NumpyVectorView(u)
+        umem = view.memory() 
+        # print("view:",umem)
+
+        # Access as numpy array.
+        import numpy as np
+        upy=np.frombuffer(umem, dtype=np.float64)   
+        print(upy)
+
     # Compute error.
     errU=ug4.L2Error(mySolutionU, u, "u", 0.0, 4, "Inner")
     errV=ug4.L2Error(mySolutionV, u, "v", 0.0, 4, "Inner")
+
+
     print( "Error: ", [errU, errV] )
     return [errU, errV]
             
