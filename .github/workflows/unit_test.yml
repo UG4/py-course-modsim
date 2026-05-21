@@ -1,5 +1,4 @@
-name: Push Event Workflow
-
+name: Integration Tests
 on:
   push:  # push request on 'develop'
     branches:
