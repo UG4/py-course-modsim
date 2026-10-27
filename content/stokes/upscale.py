@@ -146,7 +146,7 @@ def test_upscale(numRefs, lsolver, gdir=[1.0, 0.0], filename=None):
         ug4.WriteGridFunctionToVTK(u, filename)
 
     # Compute averages.
-    area = ug4.Integral(1.0, "Inner", 4)
+    area = ug4.Integral(1.0, u, "Inner", 4)
     avgU=ug4.Integral(u, "u", "Inner", 4)/area
     avgV=ug4.Integral(u, "v", "Inner", 4)/area
 
