@@ -3,25 +3,49 @@
 
 
 import sys
-sys.path.insert(0, "/Users/anaegel/Software/ug4-git")
 sys.path.append("..")
+print(sys.path)
 
 
 
 import ug4py.pyugcore as ugcore
-# import ug4py.pyconvectiondiffusion as cd
+#import ug4py.pyconvectiondiffusion as cd
 import ug4py.pysmallstrainmechanics as mech
 import ug4py.pyutil as pyutil
 
 
 import math  # For sqrt, sin, exp, ...
-
 import modsimtools as util
+
+
+class units:
+    MPa = 1e+6  # Mega Pascal
+    GPa = 1e+9  # Giga Pascal
+
+
+
+ptop = 2.0*units.MPa
+pside = 2.0*units.MPa
+
+def cylinder_normal_x(x, y, z, t, si):
+    """Return the x component of the outward unit normal on the cylinder shell."""
+    radius = math.hypot(x, y)
+    if radius == 0.0:
+        raise ValueError("The cylinder normal is undefined on its axis.")
+    return pside*x / radius
+
+def cylinder_normal_y(x, y, z, t, si):
+    """Return the y component of the outward unit normal on the cylinder shell."""
+    radius = math.hypot(x, y)
+    if radius == 0.0:
+        raise ValueError("The cylinder normal is undefined on its axis.")
+    return pside*y/ radius
+
 
 # ## Problem definitions
 class MyProblem:
     # Geometrie
-    gridName= "cylinder.ugx" 
+    gridName= "cylinder_small.ugx" 
     requiredSubsets = {"Inner", "Shell", "Top", "Bottom", "BottomRing", "TopRing"}
     
     numRefs= 1
@@ -44,8 +68,7 @@ class MyProblem:
         self.elemDisc = elemDisc
 
         self.dirichletBND = ugcore.DirichletBoundary3dCPU1()
-        self.dirichletBND.add(-0.1, "uz", "Top")  # Compress (negative value) the top of the cylinder
-
+      
          # Fix z deformation at the bottom of the cylinder.
         #self.dirichletBND.add(0.0, "uz", "Bottom") 
 
@@ -53,15 +76,47 @@ class MyProblem:
         self.dirichletBND.add(0.0, "ux", "Bottom, BottomPole") 
         self.dirichletBND.add(0.0, "uy", "Bottom, BottomPole") 
         self.dirichletBND.add(0.0, "uz", "Bottom, BottomPole") 
+
+
+        # Add Neumann boundary condition, e.g., for compressions of the side walls 
+        self.neumannBNDX = ugcore.NeumannBoundaryFE3d("ux")
+        self.neumannBNDY = ugcore.NeumannBoundaryFE3d("uy")
+        self.neumannBNDZ = ugcore.NeumannBoundaryFE3d("uz")
+        #self.neumannBNDX.add(1000.0, "ux", "Shell")  # Apply a force of 1000 N in the x-direction on the top ring of the cylinder.
         
        
-        
+        #self.neumannBNDY.add(0.0, "uy", "Shell")  # Apply a force of 0 N in the y-direction on the top ring of the cylinder.
+            
+        # Compress cylinder by force:
+        if True:
+            self.neumannBNDX.add(0.0, "Top", "Inner")  # Apply a force of 0 N in the z-direction on the top ring of the cylinder.
+            self.neumannBNDY.add(0.0, "Top", "Inner")
+            self.neumannBNDZ.add(ptop, "Top", "Inner")
+        else:
+            # Compress (negative value) the top of the cylinder by a Dirichlet boundary condition:
+            self.dirichletBND.add(-0.1, "uz", "Top")  # Cylinder
+       
+
+        self.neumannBNDX.add(ugcore.PythonUserNumber3d(cylinder_normal_x), "Shell", "Inner")  # Apply a force of 0 N in the z-direction on the top ring of the cylinder.
+        self.neumannBNDY.add(ugcore.PythonUserNumber3d(cylinder_normal_y), "Shell", "Inner")
+        self.neumannBNDZ.add(0.0, "Shell", "Inner")
     
     # API function
     def CreateDomainDisc(self,approxSpace):   
         domainDisc = ugcore.DomainDiscretization3dCPU1(approxSpace)  
         domainDisc.add(self.elemDisc)
         domainDisc.add(self.dirichletBND)
+
+        # Neumann boundaries are optional.
+        if self.neumannBNDX is not None:
+            domainDisc.add(self.neumannBNDX)
+        
+        if self.neumannBNDY is not None:
+            domainDisc.add(self.neumannBNDY)
+        
+        if self.neumannBNDZ is not None:
+            domainDisc.add(self.neumannBNDZ)
+            
         return domainDisc
     
     # Callback fuer rechte Seite
