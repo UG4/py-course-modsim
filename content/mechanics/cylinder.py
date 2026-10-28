@@ -2,11 +2,22 @@
 # coding: utf-8
 
 
+import argparse
+
+parser = argparse.ArgumentParser(description="Linear-elastic cylinder compression")
+parser.add_argument("--ptop", type=float, default=2.0, help="Top pressure in MPa (default: 2.0)")
+parser.add_argument("--pside", type=float, default=0.0, help="Side pressure in MPa (default: 0.0)")
+parser.add_argument("--num-refs", type=int, default=1, help="Number of refinements (default: 1)")
+args, _ = parser.parse_known_args()
+
+
+
+
+
+
+
 import sys
 sys.path.append("..")
-print(sys.path)
-
-
 
 import ug4py.pyugcore as ugcore
 #import ug4py.pyconvectiondiffusion as cd
@@ -23,9 +34,11 @@ class units:
     GPa = 1e+9  # Giga Pascal
 
 
+ptop = args.ptop * units.MPa
+pside = args.pside * units.MPa
+print("Top pressure: ", ptop, "Pa")
+print("Side pressure: ", pside, "Pa")
 
-ptop = 2.0*units.MPa
-pside = 2.0*units.MPa
 
 def cylinder_normal_x(x, y, z, t, si):
     """Return the x component of the outward unit normal on the cylinder shell."""
@@ -48,12 +61,13 @@ class MyProblem:
     gridName= "cylinder_small.ugx" 
     requiredSubsets = {"Inner", "Shell", "Top", "Bottom", "BottomRing", "TopRing"}
     
-    numRefs= 1
+    
     
     # Constructor
-    def __init__(self, E, nu):
+    def __init__(self, E, nu, numRefs=1):
         self.EYoung = E
         self.nu = nu
+        self.numRefs = numRefs
 
         matLaw = mech.HookeLaw3d()
         matLaw.set_hooke_elasticity_tensor_E_nu(self.EYoung, self.nu)
@@ -73,9 +87,10 @@ class MyProblem:
         #self.dirichletBND.add(0.0, "uz", "Bottom") 
 
         # Avoid rigid body motion by fixing the bottom pole in all directions.
-        self.dirichletBND.add(0.0, "ux", "Bottom, BottomPole") 
-        self.dirichletBND.add(0.0, "uy", "Bottom, BottomPole") 
-        self.dirichletBND.add(0.0, "uz", "Bottom, BottomPole") 
+        self.dirichletBND.add(0.0, "ux", "BottomPole") 
+        self.dirichletBND.add(0.0, "uy", "BottomPole") 
+        self.dirichletBND.add(0.0, "uz", "Bottom, BottomRing, BottomPole")  # No penetration.
+
 
 
         # Add Neumann boundary condition, e.g., for compressions of the side walls 
@@ -128,7 +143,7 @@ problem = MyProblem(E=1e+9, nu=0.3) # E in GPa
 
 result = ", ".join(problem.requiredSubsets)
 print(result)
-dom = pyutil.CreateDomain3d(problem.gridName, problem.numRefs, )
+dom = pyutil.CreateDomain3d(problem.gridName, problem.numRefs)
 
 approxSpace = ugcore.ApproximationSpace3d(dom)
 approxSpace.add_fct("ux", "Lagrange", 1)
@@ -185,3 +200,25 @@ except Exception as inst:
 
 
 ugcore.WriteGridFunctionToVTK(uh, "cylinder.vtu")
+
+
+# TODO: Some sanity checks for the solution, e.g., check that the displacement is negative in z-direction at the top of the cylinder.
+# A) As a simple check, we can compute the average displacement in z-direction at the top of the cylinder and print it to the console.
+topArea =ugcore.Integral(1.0, uh, "Top", 2)
+topDisp =ugcore.Integral(uh, "uz", "Top", 2)
+print ("avg. top displacement in z-direction: ", topDisp/topArea)
+
+#B) Check for symmetry of the solution. Integrate the displacement in x-direction over the cylinder. It should be close to zero.
+print("Cylinder symmetry check: Integrate the displacement in x-direction over the cylinder. It should be close to zero.")
+volC =ugcore.Integral(1.0, uh, "Inner", 2)
+avgUx =ugcore.Integral(uh, "ux", "Inner", 2)
+avgUy =ugcore.Integral(uh, "uy", "Inner", 2)
+avgUz =ugcore.Integral(uh, "uz", "Inner", 2)
+print ("avg. displacement in x-direction (approx. 0): ", avgUx/volC)
+print ("avg. displacement in y-direction (approx. 0): ", avgUy/volC)
+print ("avg. displacement in z-direction (approx. 1/2 of top displacement): ", avgUz/volC)
+
+# C) Check for Poisson's ratio. Integrate the displacement in x-direction over the cylinder and divide it by the average displacement in z-direction at the top of the cylinder. It should be close to -nu.
+print ("Est. Poisson's ratio: ", (avgUx/volC)/(topDisp/topArea)) # for uniaxial compression only!
+
+
